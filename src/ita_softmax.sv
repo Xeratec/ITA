@@ -54,11 +54,11 @@ module ita_softmax
   requant_oup_t requant_oup_q;
   requant_t max_d, max_q;
 
-  logic unsigned [N-1:0][3:0] shift_d, shift_q;
+  logic unsigned [N-1:0][WI-1:0] shift_d, shift_q;
   logic [N-1:0][WI-1:0] shift_diff;
-  logic unsigned [3:0] shift_sum_d, shift_sum_q;
+  logic unsigned [WI-1:0] shift_sum_d, shift_sum_q;
   logic [WI-1:0] max_diff;
-  logic unsigned [M-1:0][3:0] shift_inp;
+  logic unsigned [M-1:0][WI-1:0] shift_inp;
   logic [M-1:0][WI-1:0] shift_inp_diff;
 
   logic calc_stream_soft_en_q;
@@ -139,18 +139,18 @@ module ita_softmax
       max_d = max_i;
       for (int i = 0; i < N; i++) begin
         shift_diff[i] = max_i - requant_oup_q[i];
-        shift_d[i]    = unsigned'(shift_diff[i]) >> 5;
-        if (shift_diff[i][4])
-          shift_d[i] = (unsigned'(shift_diff[i]) >> 5) + 1;
+        shift_d[i]    = unsigned'(shift_diff[i]) >> 3;
+        if (shift_diff[i][2])
+          shift_d[i] = (unsigned'(shift_diff[i]) >> 3) + 1;
       end
       if (tile_q2 != '0 || count_q2>=M) begin // If not first part of the first row, normalize previous sum
         read_acc_en_o[0]   = 1;
         read_acc_addr_o[0] = count_q2;
         prev_max_o  = read_max_data_i[0];
         max_diff    = max_i - prev_max_o;
-        shift_sum_d = max_diff >> 5;
-        if (max_diff[4])
-          shift_sum_d = (max_diff >> 5) + 1;
+        shift_sum_d = max_diff >> 3;
+        if (max_diff[2])
+          shift_sum_d = (max_diff >> 3) + 1;
       end else begin
         prev_max_o = 8'h80;
       end
@@ -162,7 +162,7 @@ module ita_softmax
       write_max_addr_o = count_q3;
       write_max_data_o = max_q;
       for (int i = 0; i < N; i++) begin
-        exp_sum_d += unsigned'(9'h100)>>shift_q[i];
+        exp_sum_d += unsigned'(33'h100000000)>>shift_q[i];
       end
       if (tile_q3 != '0 || count_q3>=M) begin // If not first part of the first row
         exp_sum_d += ( unsigned'(read_acc_data_i[0]) >> shift_sum_q);
@@ -223,9 +223,9 @@ module ita_softmax
     if (calc_stream_soft_en_q) begin
       for (int i = 0; i < M; i++) begin
         shift_inp_diff[i] = read_max_data_i[1]-inp_i[i];
-        shift_inp[i]      = unsigned'(shift_inp_diff[i]) >> 5;
-        if (shift_inp_diff[i][4])
-          shift_inp[i] = (unsigned'(shift_inp_diff[i]) >> 5) + 1;
+        shift_inp[i]      = unsigned'(shift_inp_diff[i]) >> 3;
+        if (shift_inp_diff[i][2])
+          shift_inp[i] = (unsigned'(shift_inp_diff[i]) >> 3) + 1;
         inp_stream_soft_o[i] = read_acc_data_i[1] >> shift_inp[i];
       end
     end

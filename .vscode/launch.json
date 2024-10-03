@@ -17,6 +17,9 @@
                 "-S${input:seq_len}",
                 "-E${input:emb_len}",
                 "-P${input:prj_len}",
+                "-F${input:ff_len}",
+                "--activation=${input:activation}",
+
             ],
         }
     ],
@@ -44,6 +47,19 @@
             "type": "promptString",
             "description": "Projection length",
             "default": "64"
+        },
+        {
+            "id": "ff_len",
+            "type": "promptString",
+            "description": "Feedforward length",
+            "default": "64"
+        },
+        {
+            "id": "activation",
+            "type": "pickString",
+            "description": "Activation function",
+            "options": ["identity", "relu", "gelu"],
+            "default": "identity"
         }
     ]
 }

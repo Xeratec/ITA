@@ -95,8 +95,8 @@ package ita_package;
   typedef logic [idx_width(7*H*S*S/N+1)-1:0] counter_t;
 
   // Softmax
-  localparam int unsigned SoftmaxScalar = 65280; // (2**8-1) * 2**8
-  localparam int unsigned SoftmaxAccDataWidth = 19; // Up to S = 2048
+  localparam longint unsigned SoftmaxScalar = 44'd1095216660480; // (2**8-1) * 2**32
+  localparam int unsigned SoftmaxAccDataWidth = 43; // Up to S = 2048
   localparam int unsigned SoftFifoDepth = 4;
   typedef logic [idx_width(SoftFifoDepth)-1:0] soft_fifo_usage_t;
   typedef logic [idx_width(SoftFifoDepth+1)-1:0] ongoing_soft_t;

@@ -1,3 +1,6 @@
 *third_party/
 *venv/
 *simvectors/
+*deps/
+*install/
+*.bender/
